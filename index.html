@@ -46,6 +46,22 @@
   }
   .wa:hover{background:#8cc75b}
 
+  form{display:grid; gap:14px; max-width:520px}
+  label{display:grid; gap:6px; font-size:15px; color:var(--muted)}
+  input, select, textarea{
+    font:16px/1.4 inherit; color:var(--ink); padding:12px 14px;
+    border:1px solid var(--line); border-radius:10px; background:#fff; width:100%;
+  }
+  input:focus, select:focus, textarea:focus{outline:2px solid var(--green); outline-offset:1px}
+  button{
+    justify-self:start; min-height:48px; padding:14px 28px;
+    background:var(--green); color:#fff; font-weight:700; font-size:17px;
+    border:0; border-radius:10px; cursor:pointer;
+  }
+  button:hover{background:var(--green-dark)}
+  .err{color:#b3261e; font-size:15px}
+  .ok{font-size:18px; font-weight:600; color:var(--green-dark)}
+
   footer{padding:26px 0 40px; color:var(--muted); font-size:15px}
 
   @media (max-width:600px){
@@ -99,6 +115,31 @@
   </div>
 </section>
 
+<section id="zayavka">
+  <div class="wrap">
+    <h2>Оставить заявку</h2>
+    <form id="form">
+      <label>Какая услуга интересует?
+        <select id="usluga" required>
+          <option value="">Загружаем услуги…</option>
+        </select>
+      </label>
+      <label>Имя
+        <input id="name" type="text" required placeholder="Как к вам обращаться">
+      </label>
+      <label>Телефон
+        <input id="phone" type="tel" required placeholder="+7 700 000-00-00">
+      </label>
+      <label>Комментарий
+        <textarea id="message" rows="3" placeholder="Удобное время, пожелания"></textarea>
+      </label>
+      <button type="submit">Оставить заявку</button>
+      <p id="err" class="err" hidden></p>
+    </form>
+    <p id="ok" class="ok" hidden>Спасибо! Мы свяжемся с вами.</p>
+  </div>
+</section>
+
 <section class="contacts">
   <div class="wrap">
     <h2>Контакты</h2>
@@ -116,5 +157,44 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Адрес проекта и ПУБЛИЧНЫЙ ключ. Публичный ключ в коде страницы — это нормально:
+  // за ним стоят политики доступа. Секретный ключ сюда класть нельзя никогда.
+  const SUPABASE_URL = 'https://wakgcdndwpanexucpjxs.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_BWJCRzFLmA4sY8zQyrCafg_ddj1i-ds';
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const $ = (id) => document.getElementById(id);
+
+  // Список услуг подтягиваем из таблицы uslugi
+  (async () => {
+    const { data, error } = await db.from('uslugi').select('id, title, price').order('id');
+    const sel = $('usluga');
+    if (error) { sel.innerHTML = '<option value="">Не удалось загрузить услуги</option>'; return; }
+    sel.innerHTML = '<option value="">Выберите услугу</option>' +
+      data.map((u) => `<option value="${u.id}">${u.title} — ${u.price} ₸</option>`).join('');
+  })();
+
+  $('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $('err').hidden = true;
+
+    const { error } = await db.from('zayavki').insert({
+      name: $('name').value.trim(),
+      phone: $('phone').value.trim(),
+      message: $('message').value.trim(),
+      usluga_id: Number($('usluga').value),
+    });
+
+    if (error) {
+      $('err').textContent = 'Ошибка: ' + error.message;
+      $('err').hidden = false;
+      return;
+    }
+    $('form').hidden = true;
+    $('ok').hidden = false;
+  });
+</script>
 </body>
 </html>

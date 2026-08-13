@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Салон «Айгерим» — Костанай</title>
+<style>
+  :root{
+    --green:#1f5c3d; --green-dark:#14402a; --lime:#7ab648;
+    --ink:#14201a; --muted:#5b6b63; --line:#dfe6e1; --bg:#ffffff; --soft:#f4f8f5;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{
+    font:17px/1.6 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); background:var(--bg);
+  }
+  .wrap{max-width:900px; margin:0 auto; padding:0 20px}
+
+  header{background:var(--green); color:#fff; padding:56px 0 48px}
+  header h1{font-size:38px; line-height:1.15; letter-spacing:-.02em; margin-bottom:12px}
+  header p{font-size:19px; color:#d7e7dd; max-width:34em}
+
+  section{padding:44px 0; border-bottom:1px solid var(--line)}
+  h2{font-size:26px; color:var(--green-dark); margin-bottom:20px; letter-spacing:-.01em}
+
+  .price{list-style:none}
+  .price li{
+    display:flex; justify-content:space-between; align-items:baseline; gap:16px;
+    padding:14px 0; border-bottom:1px dashed var(--line);
+  }
+  .price li:last-child{border-bottom:0}
+  .price .name{font-weight:600}
+  .price .time{display:block; font-size:15px; color:var(--muted); font-weight:400}
+  .price .sum{font-size:19px; font-weight:700; color:var(--green); white-space:nowrap}
+
+  .why{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; list-style:none}
+  .why li{background:var(--soft); border:1px solid var(--line); border-radius:12px; padding:20px}
+  .why b{display:block; color:var(--green-dark); margin-bottom:6px; font-size:18px}
+
+  .contacts p{margin-bottom:10px}
+  .contacts .label{color:var(--muted); display:inline-block; min-width:150px}
+  .wa{
+    display:inline-block; margin-top:18px; padding:15px 26px; min-height:48px;
+    background:var(--lime); color:#12300a; font-weight:700; font-size:17px;
+    border-radius:10px; text-decoration:none;
+  }
+  .wa:hover{background:#8cc75b}
+
+  footer{padding:26px 0 40px; color:var(--muted); font-size:15px}
+
+  @media (max-width:600px){
+    header{padding:40px 0 34px}
+    header h1{font-size:29px}
+    .price li{flex-direction:column; gap:2px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Салон «Айгерим»</h1>
+    <p>Маникюр и педикюр в Костанае. Записываем на удобное время, работаем без спешки и выезжаем на дом.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Услуги и цены</h2>
+    <ul class="price">
+      <li>
+        <span class="name">Маникюр без покрытия<span class="time">40 минут</span></span>
+        <span class="sum">4 000 ₸</span>
+      </li>
+      <li>
+        <span class="name">Маникюр с гель-покрытием<span class="time">1 час 30 минут</span></span>
+        <span class="sum">7 500 ₸</span>
+      </li>
+      <li>
+        <span class="name">Педикюр<span class="time">1 час 30 минут</span></span>
+        <span class="sum">9 000 ₸</span>
+      </li>
+      <li>
+        <span class="name">Выезд на дом<span class="time">район центра, запись за день</span></span>
+        <span class="sum">+3 000 ₸</span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Почему к нам возвращаются</h2>
+    <ul class="why">
+      <li><b>Время — ваше</b>Не задерживаем: если мастер занят, предупреждаем заранее и переносим.</li>
+      <li><b>Стерильность</b>Инструмент обрабатывается после каждого клиента, одноразовое — одноразово.</li>
+      <li><b>Честная цена</b>Стоимость называем до начала работы. Снятие чужого покрытия — 1 500 ₸.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="contacts">
+  <div class="wrap">
+    <h2>Контакты</h2>
+    <p><span class="label">Адрес</span> Костанай, центр</p>
+    <p><span class="label">Телефон</span> +7 700 000-00-00</p>
+    <p><span class="label">Часы работы</span> ежедневно, 10:00–20:00</p>
+    <p><span class="label">Оплата</span> наличные, Kaspi</p>
+    <a class="wa" href="https://wa.me/77000000000">Написать в WhatsApp</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Учебный сайт курса «AI / Vibe Coding», TIREK Education. Салон и контакты вымышленные.
+  </div>
+</footer>
+
+</body>
+</html>

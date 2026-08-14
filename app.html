@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Личный кабинет — салон «Айгерим»</title>
+<style>
+  :root{
+    --green:#1f5c3d; --green-dark:#14402a; --lime:#7ab648;
+    --ink:#14201a; --muted:#5b6b63; --line:#dfe6e1; --bg:#ffffff; --soft:#f4f8f5;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{font:17px/1.6 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); background:var(--bg)}
+  .wrap{max-width:760px; margin:0 auto; padding:0 20px}
+
+  header{background:var(--green); color:#fff; padding:28px 0}
+  header .row{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap}
+  header h1{font-size:24px; letter-spacing:-.01em}
+  header .who{font-size:15px; color:#d7e7dd}
+
+  section{padding:32px 0; border-bottom:1px solid var(--line)}
+  h2{font-size:22px; color:var(--green-dark); margin-bottom:16px}
+
+  form{display:grid; gap:12px; max-width:460px}
+  form[hidden]{display:none}
+  label{display:grid; gap:6px; font-size:15px; color:var(--muted)}
+  input{font:16px/1.4 inherit; color:var(--ink); padding:12px 14px; border:1px solid var(--line); border-radius:10px; width:100%}
+  input:focus{outline:2px solid var(--green); outline-offset:1px}
+  button{justify-self:start; min-height:48px; padding:13px 24px; background:var(--green); color:#fff;
+    font-weight:700; font-size:16px; border:0; border-radius:10px; cursor:pointer}
+  button:hover{background:var(--green-dark)}
+  button.ghost{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.5); min-height:40px; padding:8px 16px; font-size:15px}
+  button.small{min-height:36px; padding:6px 14px; font-size:14px; background:#fff; color:var(--green-dark); border:1px solid var(--line); font-weight:600}
+  .link{background:none; border:0; color:var(--green); font-size:15px; cursor:pointer; padding:0; min-height:0; text-decoration:underline}
+
+  ul{list-style:none; display:grid; gap:10px; margin-bottom:18px}
+  li{display:flex; align-items:center; justify-content:space-between; gap:14px;
+     background:var(--soft); border:1px solid var(--line); border-radius:10px; padding:14px 16px}
+  li .when{display:block; font-size:14px; color:var(--muted)}
+  .empty{color:var(--muted)}
+  .err{color:#b3261e; font-size:15px}
+  .ok{color:var(--green-dark); font-size:15px; font-weight:600}
+  footer{padding:24px 0 40px; color:var(--muted); font-size:14px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap row">
+    <h1>Личный кабинет</h1>
+    <div id="bar" hidden>
+      <span class="who" id="who"></span>
+      <button class="ghost" id="logout">Выйти</button>
+    </div>
+  </div>
+</header>
+
+<!-- ВХОД -->
+<section id="authBox">
+  <div class="wrap">
+    <h2 id="authTitle">Вход</h2>
+    <form id="authForm">
+      <label>Почта <input id="email" type="email" required placeholder="demo@aigerim.kz"></label>
+      <label>Пароль <input id="password" type="password" required minlength="8" placeholder="не короче 8 символов"></label>
+      <button type="submit" id="authBtn">Войти</button>
+      <p class="err" id="authErr" hidden></p>
+    </form>
+    <p style="margin-top:14px">
+      <button class="link" id="toggle">Нет аккаунта? Зарегистрироваться</button>
+    </p>
+  </div>
+</section>
+
+<!-- КАБИНЕТ -->
+<section id="cabinet" hidden>
+  <div class="wrap">
+    <h2>Мои записи</h2>
+    <ul id="list"></ul>
+    <p class="empty" id="empty" hidden>Записей пока нет.</p>
+    <form id="addForm">
+      <label>Что <input id="title" type="text" required placeholder="Маникюр с покрытием"></label>
+      <label>Когда <input id="data" type="text" required placeholder="суббота, 17:00"></label>
+      <button type="submit">Добавить</button>
+      <p class="err" id="addErr" hidden></p>
+    </form>
+  </div>
+</section>
+
+<!-- ПРОФИЛЬ -->
+<section id="profileBox" hidden>
+  <div class="wrap">
+    <h2>Мой профиль</h2>
+    <form id="profileForm">
+      <label>Имя <input id="full_name" type="text" placeholder="Как к вам обращаться"></label>
+      <label>Телефон <input id="phone" type="tel" placeholder="+7 700 000-00-00"></label>
+      <label>Город <input id="city" type="text" placeholder="Костанай"></label>
+      <button type="submit">Сохранить</button>
+      <p class="ok" id="profileOk" hidden>Сохранено.</p>
+      <p class="err" id="profileErr" hidden></p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Учебное приложение курса «AI / Vibe Coding», TIREK Education.</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://wakgcdndwpanexucpjxs.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_BWJCRzFLmA4sY8zQyrCafg_ddj1i-ds';
+  // Клиент доступен в консоли как db — им проверяют изоляцию данных на занятии 8.
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  window.db = db;
+
+  const $ = (id) => document.getElementById(id);
+  let mode = 'in'; // 'in' — вход, 'up' — регистрация
+
+  $('toggle').addEventListener('click', () => {
+    mode = mode === 'in' ? 'up' : 'in';
+    $('authTitle').textContent = mode === 'in' ? 'Вход' : 'Регистрация';
+    $('authBtn').textContent = mode === 'in' ? 'Войти' : 'Зарегистрироваться';
+    $('toggle').textContent = mode === 'in' ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти';
+  });
+
+  $('authForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $('authErr').hidden = true;
+    const email = $('email').value.trim();
+    const password = $('password').value;
+
+    const { error } = mode === 'in'
+      ? await db.auth.signInWithPassword({ email, password })
+      : await db.auth.signUp({ email, password });
+
+    if (error) {
+      $('authErr').textContent = error.message === 'Invalid login credentials'
+        ? 'Неверная почта или пароль'
+        : 'Ошибка: ' + error.message;
+      $('authErr').hidden = false;
+      return;
+    }
+    location.reload();
+  });
+
+  $('logout').addEventListener('click', async () => {
+    await db.auth.signOut();
+    location.reload();
+  });
+
+  // Список записей. Запрос БЕЗ фильтра по пользователю — фильтрует база, а не страница.
+  async function loadZapisi() {
+    const { data, error } = await db.from('zapisi').select('*').order('created_at', { ascending: false });
+    const ul = $('list');
+    if (error) { ul.innerHTML = ''; $('empty').textContent = 'Ошибка: ' + error.message; $('empty').hidden = false; return; }
+    $('empty').hidden = data.length > 0;
+    ul.innerHTML = data.map((z) =>
+      `<li><span><b>${z.title}</b><span class="when">${z.data || ''}</span></span>
+       <button class="small" data-id="${z.id}">Удалить</button></li>`
+    ).join('');
+    ul.querySelectorAll('button[data-id]').forEach((b) => {
+      b.addEventListener('click', async () => {
+        await db.from('zapisi').delete().eq('id', b.dataset.id);
+        loadZapisi();
+      });
+    });
+  }
+
+  $('addForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $('addErr').hidden = true;
+    // user_id не передаём — база подставит его сама из auth.uid()
+    const { error } = await db.from('zapisi').insert({ title: $('title').value.trim(), data: $('data').value.trim() });
+    if (error) { $('addErr').textContent = 'Ошибка: ' + error.message; $('addErr').hidden = false; return; }
+    $('title').value = ''; $('data').value = '';
+    loadZapisi();
+  });
+
+  async function loadProfile() {
+    const { data } = await db.from('profili').select('*').maybeSingle();
+    if (data) { $('full_name').value = data.full_name || ''; $('phone').value = data.phone || ''; $('city').value = data.city || ''; }
+  }
+
+  $('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $('profileOk').hidden = true; $('profileErr').hidden = true;
+    const row = { full_name: $('full_name').value.trim(), phone: $('phone').value.trim(), city: $('city').value.trim() };
+    const { data: exists } = await db.from('profili').select('user_id').maybeSingle();
+    const { error } = exists
+      ? await db.from('profili').update(row).eq('user_id', exists.user_id)
+      : await db.from('profili').insert(row);
+    if (error) { $('profileErr').textContent = 'Ошибка: ' + error.message; $('profileErr').hidden = false; return; }
+    $('profileOk').hidden = false;
+  });
+
+  (async () => {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) return;
+    $('authBox').hidden = true;
+    $('cabinet').hidden = false;
+    $('profileBox').hidden = false;
+    $('bar').hidden = false;
+    $('who').textContent = 'Вы вошли: ' + session.user.email + '  ';
+    loadZapisi();
+    loadProfile();
+  })();
+</script>
+</body>
+</html>

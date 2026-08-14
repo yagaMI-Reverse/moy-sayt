@@ -177,14 +177,36 @@
       data.map((u) => `<option value="${u.id}">${u.title} — ${u.price} ₸</option>`).join('');
   })();
 
+  // Адрес вебхука из Make. Пустая строка — конвейер просто не вызывается.
+  const MAKE_WEBHOOK = 'https://hook.eu1.make.com/ycl0nd7quo1at86yrrhhrgev41jrjovs';
+
+  // Копия заявки уходит в конвейер. Если он молчит — клиент этого не замечает:
+  // заявка уже лежит в базе. Сначала сохранить, потом разносить.
+  async function sendToMake(zayavka) {
+    if (!MAKE_WEBHOOK) return;
+    try {
+      await fetch(MAKE_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(zayavka),
+      });
+    } catch (e) {
+      console.warn('Вебхук не ответил. Заявка сохранена в базе:', e);
+    }
+  }
+
   $('form').addEventListener('submit', async (e) => {
     e.preventDefault();
     $('err').hidden = true;
 
-    const { error } = await db.from('zayavki').insert({
+    const zayavka = {
       name: $('name').value.trim(),
       phone: $('phone').value.trim(),
       message: $('message').value.trim(),
+    };
+
+    const { error } = await db.from('zayavki').insert({
+      ...zayavka,
       usluga_id: Number($('usluga').value),
     });
 
@@ -193,6 +215,9 @@
       $('err').hidden = false;
       return;
     }
+
+    await sendToMake(zayavka);
+
     $('form').hidden = true;
     $('ok').hidden = false;
   });
